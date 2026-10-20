@@ -22,8 +22,10 @@ The source has no dedicated season, salary, location or qualification properties
 
 All 84 current Bryant entries were retrieved using paginated queries. Live duplicate detection recognized the existing Vast Mechanical/Aerospace Engineering Internship without changes. A separate Vast Electrical Engineering Internship produced a new-entry dry run.
 
-## Remaining authorization and validation gate
+## Approved live test completed
 
-`first_live_verified` remains false. No entry has been created. Present the concrete preview and request explicit user approval before the first live write. `--approved-preview-sha256` ties that permission to one exact preview; posting changes require a new preview. After creation, retrieve and verify destination, every mapped property, original URL, ownership, status and paragraph body. Only then mark the verified-live flag true and enable normal invocations without repeated confirmation.
+The user explicitly approved the Vast Electrical Engineering Internship preview. Page `3ff90d2e-cd48-81ae-8bd9-c81a6828d424` was created once on 2026-10-20. Read-back verified the destination, every mapped property, original URL, Person relation, exact Not applied option and paragraph body. A separate paginated property read verified the page appears in Bryant's `Bryant positions` reverse relation; the linked count increased from 84 to 85.
+
+`first_live_verified` is now true, with evidence recorded in the mapping. Normal skill invocations may add new internships with `--create` without repeated confirmation under the user's standing authorization. Existing records/statuses and the database schema must never be modified. If the destination changes, inspect and validate the new mapping before writing.
 
 Notion views are not exposed by this API; database placement and relation are verified, but visual appearance in the user's UI remains a manual check. Cross-device execution/discovery and simultaneous writers across separate cloud machines are not verified. Notion has no atomic uniqueness constraint; serialize intake tasks to avoid concurrent race conditions.

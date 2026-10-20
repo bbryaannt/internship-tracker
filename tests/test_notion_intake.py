@@ -26,6 +26,7 @@ def page(identifier='123', url='https://example.com/another', company='Fixture C
 class IntakeTests(unittest.TestCase):
     def setUp(self):
         self.mapping = json.loads(a.MAPPING.read_text())
+        self.mapping["first_live_verified"] = False  # Exercise first-entry gate regardless of production activation.
 
     def test_company_scoped_identifier_duplicate(self):
         self.assertEqual(a.duplicate(job(), [page()])[0], 'already_tracked')

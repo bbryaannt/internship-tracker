@@ -36,5 +36,20 @@
       "type": "title"
     }
   },
-  "first_live_verified": false
+  "first_live_verified": true,
+  "first_live_evidence": {
+    "page_id": "3ff90d2e-cd48-81ae-8bd9-c81a6828d424",
+    "source_url": "https://job-boards.greenhouse.io/vast/jobs/4711401006",
+    "approved_preview_sha256": "6c039dd5fc0d0af164804f58f360f27fbf7f20a72f6c3c24f9f440e9553d66ef",
+    "verified_on": "2026-10-20",
+    "verified_checks": [
+      "destination",
+      "all_mapped_properties",
+      "original_url",
+      "person_relation",
+      "status",
+      "page_body",
+      "bryant_positions_reverse_relation"
+    ]
+  }
 }

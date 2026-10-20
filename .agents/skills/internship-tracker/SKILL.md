@@ -1,6 +1,6 @@
 ---
 name: internship-tracker
-description: Save internship posting URLs to Bryant Barrio's existing Notion internship tracker with its existing Not applied status. Extract public postings, check duplicates, preview and verify new records, and process URL batches. The first live entry requires explicit approval; normal automatic creation remains gated until that test succeeds.
+description: Save internship posting URLs to Bryant Barrio's existing Notion internship tracker with its existing Not applied status. Extract public postings, check duplicates, preview and verify new records, and process URL batches. The first live test is approved and verified; normal invocations may create new entries without repeated confirmation.
 ---
 
 # Internship tracker
@@ -15,7 +15,9 @@ From the repository root, run:
 python3 .agents/skills/internship-tracker/scripts/add_internship.py <url-1> [url-2 ...]
 ```
 
-Default mode performs live schema validation, extracts each posting, searches all Bryant records for duplicates and emits proposed Notion properties and body without writing. Exit 1 means one or more inputs failed or had ambiguous duplicates. Inspect all batch results.
+For a normal skill invocation, add `--create` when the mapping has `first_live_verified: true` (the initial live test has passed). Use the default dry-run mode when explicitly requested.
+
+Default CLI mode performs live schema validation, extracts each posting, searches all Bryant records for duplicates and emits proposed Notion properties and body without writing. Exit 1 means one or more inputs failed or had ambiguous duplicates. Inspect all batch results.
 
 `extract_job.py <urls...>` extracts without Notion access. Supported extraction: public pages with one complete JSON-LD JobPosting and an official Greenhouse public API fallback for single-job board URLs. Dynamic rendering and platform-specific Workday, Lever, LinkedIn and Handshake support are not verified. Report inaccessible or unsupported pages as failures; never claim universal support. Preserve original URLs and source evidence; never invent missing season, dates, pay units or eligibility. Verified details in the posting text are preserved in the page body even when no separate property exists.
 
