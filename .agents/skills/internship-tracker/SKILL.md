@@ -5,7 +5,7 @@ description: Save internship posting URLs to Bryant Barrio's existing Notion int
 
 # Internship tracker
 
-Accept one or more HTTPS posting URLs directly after `$internship-tracker` or from prose. Use the existing checkout; do not create a worktree unless requested. Resolve the skill directory from this file. Read `references/notion_schema.md` and `references/notion_mapping.json` before operating.
+Accept one or more HTTPS posting URLs on their own, directly after `$internship-tracker`, or from prose. In this repository, bare job-posting links automatically invoke this workflow; no skill prefix or repeated confirmation is required. Explicit check-only or preview requests remain read-only. Use the existing checkout; do not create a worktree unless requested. Resolve the skill directory from this file. Read `references/notion_schema.md` and `references/notion_mapping.json` before operating.
 
 ## Invocation
 
