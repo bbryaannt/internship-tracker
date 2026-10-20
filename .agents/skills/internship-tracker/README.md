@@ -7,7 +7,7 @@ Repository-scoped cloud skill using Python 3.12+ standard library only. No insta
 - Authorized Notion inspection succeeded; Bryant's data source, Person relation, existing Not applied option, and property mapping are verified in `references/notion_schema.md` and `notion_mapping.json`.
 - Live reads retrieved all 84 Bryant opportunities. A real Vast Mechanical/Aerospace posting returned the existing record without changes.
 - Official Greenhouse extraction succeeded for a real Vast Electrical Engineering Internship. Dry run produced its typed properties and page body.
-- 23 automated tests pass, covering extraction, URL identity, pagination, duplicate ambiguity, dry-run and approval gates, schema-related types, read-back validation and uncertain-write retry prevention.
+- Automated tests cover, covering extraction, URL identity, pagination, duplicate ambiguity, dry-run and approval gates, schema-related types, read-back validation and uncertain-write retry prevention.
 - The user-approved first live Vast Electrical Engineering Internship was created and read back successfully. Destination, all mapped properties, page body and Bryant’s reverse relation passed verification. `first_live_verified` is true; normal invocations may now create new records without repeated confirmation.
 
 ## Commands
@@ -20,9 +20,9 @@ python3 .agents/skills/internship-tracker/scripts/extract_job.py '<official-job-
 python3 .agents/skills/internship-tracker/scripts/add_internship.py '<official-job-url>'
 ```
 
-The last command is a **dry run**. It inspects the live schema and all existing destination records, then returns either an existing entry, ambiguity, failure, or a proposed entry. URL batches are accepted as additional positional arguments. Partial failure returns exit 1 while processing other URLs.
+The last command **creates and verifies new records by default**, without asking for approval. Existing duplicates return their Notion link without changes. The first live test has already passed, and automatic additions are authorized for the verified Bryant destination.
 
-The approved first live test has passed. Normal skill invocations use `--create` under the user’s standing authorization to add new records; direct CLI calls remain dry-run by default. Example: `python3 .agents/skills/internship-tracker/scripts/add_internship.py --create "<official-job-url>"`. No existing pages or statuses are updated. The original first-entry approval gate remains implemented for unverified mappings.
+For check-only/preview requests, run `python3 .agents/skills/internship-tracker/scripts/add_internship.py --dry-run '<official-job-url>'`. This never creates records. `--create` remains supported for older invocations. Multiple positional URLs are processed independently; partial failure returns exit 1.
 
 ## Extraction coverage
 

@@ -15,22 +15,17 @@ From the repository root, run:
 python3 .agents/skills/internship-tracker/scripts/add_internship.py <url-1> [url-2 ...]
 ```
 
-For a normal skill invocation, add `--create` when the mapping has `first_live_verified: true` (the initial live test has passed). Use the default dry-run mode when explicitly requested.
+The command creates new entries by default under the user's standing authorization. Do not ask for approval or stop at extraction, duplicate checking, or a preview. Finish creation and read-back, then return the verified Notion link. `--create` remains a compatible explicit alias.
 
-Default CLI mode performs live schema validation, extracts each posting, searches all Bryant records for duplicates and emits proposed Notion properties and body without writing. Exit 1 means one or more inputs failed or had ambiguous duplicates. Inspect all batch results.
+For an explicit “check duplicates only”, “preview”, “dry run” or “do not create” request, append `--dry-run`; it performs live schema validation, extraction and duplicate checks without writes. Scope that restriction to the current request unless the user explicitly makes it persistent. A later bare link resumes automatic saving. Exit 1 means at least one input failed or had ambiguous duplicates; inspect every batch result.
 
 `extract_job.py <urls...>` extracts without Notion access. Supported extraction: public pages with one complete JSON-LD JobPosting and an official Greenhouse public API fallback for single-job board URLs. Dynamic rendering and platform-specific Workday, Lever, LinkedIn and Handshake support are not verified. Report inaccessible or unsupported pages as failures; never claim universal support. Preserve original URLs and source evidence; never invent missing season, dates, pay units or eligibility. Verified details in the posting text are preserved in the page body even when no separate property exists.
 
-## First live entry — approval required
+## Authorization already established
 
-If `first_live_verified` is false:
+The first live entry was explicitly approved, created and verified. `first_live_verified` is true in the centralized mapping. The user has authorized automatic addition of new entries to this exact Bryant tracker; no repeated approval is required. Never ask “would you like me to add it?” after finding no duplicates. Do not reset the verified flag because the old test page was later trashed; historical verification is recorded in the mapping.
 
-1. Run the dry-run command. Present the target database, title/company, original URL, relation assignment to Bryant, exact existing `Not applied` status, Notes, and body contents. Describe unknowns. Do not present a fixture as a real posting.
-2. Obtain explicit approval to add that **specific entry**. Configuration setup acknowledgements are not approval to write a test record.
-3. Run exactly one URL using `--create --approved-preview-sha256 <hash-from-approved-preview>`. If the current payload differs, stop and show a new preview. Never supply this approval flag without the user's approval.
-4. A successful `added` result requires property and page-body read-back verification. Return its Notion URL. Only after successful verification set `first_live_verified` in the mapping to true, preserve the evidence, and save startup instructions for normal operation. Ask the user to check visual appearance if the UI cannot be tested.
-
-Once the first live entry has passed, the user's existing authorization permits normal invocations with `--create` and no repeated approval. Use the same source and mapping; never modify existing records or statuses, database schema, or submit applications. Do not enable the flag based solely on mocked tests.
+If the destination/schema no longer matches, stop with the specific mapping error rather than guessing or changing the database. Preserve duplicate ambiguity and uncertain-write protections. Never modify existing records or statuses, restructure the tracker, or submit applications.
 
 ## Duplicate and retry rules
 

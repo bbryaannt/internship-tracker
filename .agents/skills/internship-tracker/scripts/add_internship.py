@@ -1,4 +1,4 @@
-"""Schema-validated Notion intake. Dry run by default; never updates existing records."""
+"""Schema-validated Notion intake. Creates new entries by default; --dry-run never writes; never updates existing records."""
 import argparse
 import fcntl
 import hashlib
@@ -215,7 +215,10 @@ def process(client, mapping, job, create=False, approved=False, state_dir=None):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('urls', nargs='+')
-    parser.add_argument('--create', action='store_true')
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument('--create', dest='create', action='store_true', help='Add new entries (default; retained for compatibility).')
+    mode.add_argument('--dry-run', dest='create', action='store_false', help='Check duplicates and preview only; never create records.')
+    parser.set_defaults(create=True)
     parser.add_argument('--approved-preview-sha256', help='Only after explicit approval: exact hash from the first dry-run preview.')
     args = parser.parse_args()
     if args.approved_preview_sha256 and len(args.urls) != 1:

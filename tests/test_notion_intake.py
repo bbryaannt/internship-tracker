@@ -1,4 +1,6 @@
 import json
+import contextlib
+import io
 from pathlib import Path
 import sys
 import tempfile
@@ -27,6 +29,18 @@ class IntakeTests(unittest.TestCase):
     def setUp(self):
         self.mapping = json.loads(a.MAPPING.read_text())
         self.mapping["first_live_verified"] = False  # Exercise first-entry gate regardless of production activation.
+
+    def test_cli_default_creates_without_approval_and_dry_run_is_read_only(self):
+        for flags, expected_create in [([], True), (["--create"], True), (["--dry-run"], False)]:
+            with self.subTest(flags=flags), tempfile.TemporaryDirectory() as directory:
+                with patch.object(sys, "argv", ["add_internship.py", job()["original_url"], *flags]), \
+                     patch.object(a, "ROOT", Path(directory)), \
+                     patch.object(a, "Client"), patch.object(a, "extract_url", return_value=job()), \
+                     patch.object(a, "process", return_value={"result": "dry_run" if not expected_create else "added"}) as process, \
+                     contextlib.redirect_stdout(io.StringIO()):
+                    self.assertEqual(a.main(), 0)
+                    self.assertEqual(process.call_args.args[3], expected_create)
+                    self.assertFalse(process.call_args.args[4])
 
     def test_company_scoped_identifier_duplicate(self):
         self.assertEqual(a.duplicate(job(), [page()])[0], 'already_tracked')
