@@ -13,7 +13,7 @@ from urllib.request import Request, build_opener, HTTPRedirectHandler, getproxie
 from urllib.error import HTTPError, URLError
 
 MAX_BYTES = 4_000_000
-PROXY_POSTING_HOSTS = {"boards-api.greenhouse.io", "boards.greenhouse.io", "job-boards.greenhouse.io", "api.lever.co", "jobs.lever.co"}
+PROXY_POSTING_HOSTS = {"www.ycombinator.com", "boards-api.greenhouse.io", "boards.greenhouse.io", "job-boards.greenhouse.io", "api.lever.co", "jobs.lever.co"}
 
 
 class IntakeError(Exception):
