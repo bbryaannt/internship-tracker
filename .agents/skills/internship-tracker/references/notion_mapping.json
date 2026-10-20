@@ -1,0 +1,40 @@
+{
+  "data_source_id": "dc590d2e-cd48-828f-8221-8743b81a2279",
+  "database_id": "b4990d2e-cd48-83e3-beba-8174946cd0d9",
+  "owner_page_id": "b34b89c1-d1b5-4174-941f-6c7d8fd0ac39",
+  "owner_title": "Bryant",
+  "owner_source_id": "9ce0f9b2-380b-4e15-a7d0-c0725663d065",
+  "status_option_id": "59579075-87a7-4947-a98b-f5a5e7c68d72",
+  "status_option_name": "Not applied",
+  "properties": {
+    "Company": {
+      "id": "%3B%3FVI",
+      "type": "rich_text"
+    },
+    "Application Link": {
+      "id": "AqX%3B",
+      "type": "url"
+    },
+    "Notes": {
+      "id": "I%3Crr",
+      "type": "rich_text"
+    },
+    "Application Status": {
+      "id": "%5Da%7Bj",
+      "type": "status"
+    },
+    "Person": {
+      "id": "fgj%7D",
+      "type": "relation"
+    },
+    "Application ID": {
+      "id": "%7Dd%3Fz",
+      "type": "rich_text"
+    },
+    "Position": {
+      "id": "title",
+      "type": "title"
+    }
+  },
+  "first_live_verified": false
+}

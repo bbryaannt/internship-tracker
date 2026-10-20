@@ -1,41 +1,68 @@
-# Internship tracker skill — partial implementation
+# Internship tracker
 
-This is a repository-scoped Codex skill for cloud execution. It currently implements conservative public JSON-LD extraction, URL normalization, independent batch error handling, and read-only Notion discovery. It uses Python 3.12+ standard-library modules only. It does **not** yet add or deduplicate Notion entries. The user's required schema inspection must precede write implementation.
+Repository-scoped cloud skill using Python 3.12+ standard library only. No installation, Mac process, or long-running server is required.
 
-## Run now
+## Current validation
+
+- Authorized Notion inspection succeeded; Bryant's data source, Person relation, existing Not applied option, and property mapping are verified in `references/notion_schema.md` and `notion_mapping.json`.
+- Live reads retrieved all 84 Bryant opportunities. A real Vast Mechanical/Aerospace posting returned the existing record without changes.
+- Official Greenhouse extraction succeeded for a real Vast Electrical Engineering Internship. Dry run produced its typed properties and page body.
+- 23 automated tests pass, covering extraction, URL identity, pagination, duplicate ambiguity, dry-run and approval gates, schema-related types, read-back validation and uncertain-write retry prevention.
+- **First live write remains unapproved and unrun.** No successful integration write is claimed. The mapping flag must stay false until the approved test passes.
+
+## Commands
 
 From the checkout root:
 
 ```sh
 python3 -m unittest discover -s tests -v
-python3 .agents/skills/internship-tracker/scripts/extract_job.py 'https://company.example/careers/single-job'
-mkdir -p .local
-python3 .agents/skills/internship-tracker/scripts/inspect_notion.py --output .local/notion-inspection.json
+python3 .agents/skills/internship-tracker/scripts/extract_job.py '<official-job-url>'
+python3 .agents/skills/internship-tracker/scripts/add_internship.py '<official-job-url>'
 ```
 
-Replace the example with a real posting. Only pages containing one complete JobPosting JSON-LD object are currently supported. Workday, Greenhouse, Lever, LinkedIn, Handshake, and company sites have **not** been validated. JavaScript-only or login-protected pages return failures; they are not silently treated as complete jobs. There is no running server or installation step.
+The last command is a **dry run**. It inspects the live schema and all existing destination records, then returns either an existing entry, ambiguity, failure, or a proposed entry. URL batches are accepted as additional positional arguments. Partial failure returns exit 1 while processing other URLs.
 
-## Secure initial Notion setup
+For the first live test, the user must approve a concrete dry-run preview before the agent invokes `--create --approved-preview-sha256 <exact-hash>` for that single URL. After verified success, update `first_live_verified` to true. Subsequent ordinary skill invocations use `--create` under the user's standing authorization to add new records. No existing pages or statuses are updated.
 
-Create a Notion internal connection with read and insert-content capabilities and share the existing tracker with that connection. Enter the credential securely as `NOTION_TOKEN` in cloud environment settings. A proxy binding must target `api.notion.com`; never place credentials in Git, job URLs, reports, or chat. No update/delete operations are implemented.
+## Extraction coverage
 
-The saved network draft includes api.notion.com, app.notion.com, boards-api.greenhouse.io, boards.greenhouse.io, job-boards.greenhouse.io, api.lever.co, and jobs.lever.co, retaining the package-manager preset. Individual company career hosts and redirect destinations need explicit permission before use. Do not replace the allowlist with unrestricted access merely to make extraction work.
+Public single-job JSON-LD and the official Greenhouse board API are implemented. The API fallback handles JavaScript-only Greenhouse pages; verified board metadata supplies the company name rather than guessing it from a URL slug. Original posting URLs are preserved. Full description text and verified supplementary metadata go to the existing Notes property and page body; missing information remains absent. Pay period is never assumed from a bare amount.
 
-Review and save environment changes, then retry the inspector. If inaccessible linked databases are not exposed, share their underlying sources with the connection too. Do not guess the destination from the tracker page name. A first-live-test preview and explicit approval are still required.
+Workday, Lever-specific APIs, LinkedIn, Handshake and arbitrary JavaScript rendering are not validated. These sites work only when an accessible page provides supported metadata. Unsupported or login-protected pages fail clearly, rather than generating misleading entries. The extractor restricts public HTTPS destinations, checks DNS addresses where available, and allows proxy-only DNS for exact known recruitment hosts; other proxy-only company domains need a supported route before extraction.
 
-## Persistence and device checks
+## Secure configuration
 
-The skill lives at `.agents/skills/internship-tracker/SKILL.md`. Keep it in this project repository so the same implementation can be used in future cloud tasks. The current files must be committed and made available to the cloud checkout before repository-based persistence is established. Publishing a cloud snapshot is a separate product operation; local files do not prove fresh-session restoration or skill discovery.
+`NOTION_TOKEN` is supplied through cloud secret settings, targeted to api.notion.com. Never put credentials in Git, chat, logs or posting URLs. The connection needs read and insert-content access to the existing tracker. Reports and write journals in `.local/` are ignored and must stay private.
 
-After publishing the prepared environment and preserving this project in the repository:
+Saved network settings include api.notion.com, app.notion.com, boards-api.greenhouse.io, boards.greenhouse.io, job-boards.greenhouse.io, api.lever.co, and jobs.lever.co, preserving the package-manager preset. Individual company/redirect hosts may require additional domain permissions. Do not replace the allowlist with unrestricted access as a workaround.
 
-1. Start a new cloud task for the same repository. Confirm `internship-tracker` appears in its available skills and invoke `$internship-tracker <official-internship-url>`. If it is not discovered, ask Codex to read and follow the repository's SKILL.md explicitly, and report native discovery as unverified.
-2. On Mac, initiate a cloud task through your available Codex interface. No local Mac service is required.
-3. On iPhone, open your available Codex cloud interface with the same account, select this repository/environment, and attempt the same invocation. Confirm that it runs a cloud task with this skill and the same tracker mapping. Repeat while the Mac is off. Exact iPhone UI availability, account entitlements, and native `$skill` invocation cannot be tested from this machine.
-4. Once schema mapping and the approved live test are implemented, submit the same posting from both devices and verify that the second invocation returns the existing entry without changing it.
+Read-only reinspection:
 
-These are **pending manual checks**, not supported claims of successful mobile operation. If your phone interface can start cloud tasks but cannot invoke `$skill`, use a plain-language request to follow the repository skill. If no phone cloud-task interface is available, choose a supported authenticated automation/hosting option before building an intake endpoint. No public service is deployed and no ongoing hosting cost is introduced.
+```sh
+mkdir -p .local
+python3 .agents/skills/internship-tracker/scripts/inspect_notion.py --output .local/notion-inspection-new.json
+```
 
-## Validation limits
+The inspector refuses to overwrite reports, retrieves schemas and sample pages, and flags linked-view limitations. Schema drift or a changed Bryant relation blocks writes.
 
-Fixture tests exercise actual parsing, missing/ambiguous metadata, URL identity, private-address rejection, batch continuation, and credential gating. They do not substitute for real-posting extraction, authorized Notion inspection, duplicate tests, dry-run mapping, an approved live write, or cloud/mobile testing. See `references/notion_schema.md` for the explicit integration gate.
+## Duplicate and failure limits
+
+All current destination pages are queried, not just a sample. Normalized URLs and company-scoped job IDs establish matches. Same company/title with missing identifiers is ambiguous; different verified IDs remain separate. Matches are returned without modification, and ambiguous duplicates block creation.
+
+Read requests retry bounded rate limits and transient errors. A creation request is never blindly retried. A private journal records pending/created/verified states. Investigate uncertain attempts and read-back failures before another create; never remove a journal to force one.
+
+Run one intake task at a time. A local file lock and a second query protect one machine; Notion lacks an atomic unique key, so simultaneous independent cloud machines can still race. Strict cross-machine uniqueness requires a shared coordinator and is not claimed here.
+
+## Cross-device use and persistence
+
+Keep `.agents/skills/internship-tracker/` in this repository on the selected cloud branch, then publish the prepared cloud environment after configuration review. Processes and temporary authentication should never be assumed to survive publication; startup instructions are saved separately. Local commits/snapshots do not by themselves prove repository restoration.
+
+Pending manual checks:
+
+1. Open a fresh cloud task for this repository/environment. Confirm `internship-tracker` appears in the available skill list and invoke `$internship-tracker <job-url>`. Current-session file creation does not prove fresh-task discovery.
+2. Initiate that cloud workflow from the Mac's available Codex interface; no Mac service is involved.
+3. On iPhone, use an available Codex cloud interface with the same account, repository and environment. Try the same invocation with the Mac switched off. Account availability, mobile UI and native skill invocation cannot be verified from this machine.
+4. If the interface starts cloud tasks but lacks native `$skill` support, ask: “Read and follow .agents/skills/internship-tracker/SKILL.md for this URL: …”. If no mobile cloud-task interface is available, select a supported authenticated automation/hosting entry point before deploying infrastructure. None has been deployed.
+5. Once the approved live test succeeds, submit the same job from both devices. The second request should link the existing entry without changing its status. Also confirm its visual placement under Bryant Barrio; the Notion API cannot inspect view filters.
+
+Do not claim these checks passed until they have actually been run.
